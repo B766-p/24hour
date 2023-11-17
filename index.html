@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #play-button, #play-button1, #stop-button {
+      position: absolute;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    #play-button:hover, #play-button1:hover, #stop-button:hover {
+      transform: scale(1.1);
+    }
+
+    #play-button {
+      top: 70%;
+      left: 80%;
+    }
+
+    #play-button1 {
+      top: 70%;
+      left: 20%;
+    }
+
+    #stop-button {
+      top: 80%;
+      left: 50%;
+    }
+
+    #timer {
+      font-size: 2em;
+      color: whitesmoke;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    #progress-bar {
+      width: 0;
+      height: 10px;
+      background-color: #4CAF50;
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: width 1s ease-in-out;
+    }
+
+    .moving-logo {
+      position: relative;
+      width: 850px; /* Adjust the width of your logo */
+      height: 100px;
+      margin-right: 20px; /* Adjust spacing between logos as needed */
+      animation: moveLeftToRight 5s linear infinite; /* Adjust duration as needed */
+    }
+
+    @keyframes moveLeftToRight {
+      0% {
+        left: 0;
+      }
+      100% {
+        left: calc(100% - 850px); /* Adjust the width of your logo */
+      }
+    }
+
+    video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+
+<video autoplay muted loop playsinline>
+  <source src="2.mp4" type="video/mp4">
+  <source src="3.mp4" type="video/mp4"> <!-- Replace "your-video.mp4" with the path to your video file -->
+  Your browser does not support the video tag.
+</video>
+
+<img class="moving-logo" src="1.jpg" alt="Logo 1">
+<div id="timer">24:00:00</div>
+<div id="progress-bar"></div>
+
+<audio id="alert-sound" src="1.mp3" preload="auto"></audio> <!-- Replace "alert.mp3" with the path to your audio file -->
+<button id="play-button">Alert</button>
+
+<audio id="alert-sound1" src="2.mp3" preload="auto"></audio> <!-- Replace "alert.mp3" with the path to your audio file -->
+<button id="play-button1">Song for Entertainment</button>
+
+<audio id="stop-sound" preload="auto"></audio>
+<button id="stop-button">Stop Audio</button>
+
+<script>
+  let currentAudio;
+
+  // Set the target date and time (24 hours from now)
+  const targetDate = new Date();
+  targetDate.setHours(targetDate.getHours() + 24);
+
+  function updateTimer() {
+    const currentDate = new Date();
+    const timeDifference = targetDate - currentDate;
+
+    const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+    const formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
+
+    document.getElementById('timer').innerText = formattedTime;
+
+    // Calculate the progress percentage
+    const progress = (timeDifference / (24 * 60 * 60 * 1000)) * 100;
+    document.getElementById('progress-bar').style.width = `${100 - progress}%`;
+
+    if (timeDifference <= 0) {
+      document.getElementById('timer').innerText = '00:00:00';
+      document.getElementById('progress-bar').style.width = '100%';
+      clearInterval(timerInterval);
+
+      // Stop the animation
+      document.querySelector('.moving-logo').style.animation = 'none';
+    }
+  }
+
+  function padZero(num) {
+    return num < 10 ? `0${num}` : num;
+  }
+
+  // Update the timer every second
+  const timerInterval = setInterval(updateTimer, 1000);
+
+  // Play the alert sound when the button is clicked
+  document.getElementById('play-button').addEventListener('click', function() {
+    playAudio('alert-sound');
+  });
+
+  document.getElementById('play-button1').addEventListener('click', function() {
+    playAudio('alert-sound1');
+  });
+
+  document.getElementById('stop-button').addEventListener('click', function() {
+    stopAudio();
+  });
+
+  function playAudio(audioId) {
+    stopAudio(); // Stop any currently playing audio
+
+    currentAudio = document.getElementById(audioId);
+    currentAudio.play();
+  }
+
+  function stopAudio() {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    }
+  }
+
+  // Initial update
+  updateTimer();
+</script>
+
+</body>
+</html>
